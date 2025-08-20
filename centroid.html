@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Centroid Demo</title>
+	<style>
+		body { font-family: sans-serif; text-align: center; }
+		canvas { border: 1px solid #ccc; margin-top: 20px; }
+		button { margin-top: 20px; }
+	</style>
+</head>
+<body>
+	<h2>Centroid with Random Points</h2>
+	<button id="generate">Generate Example</button>
+	<br>
+	<canvas id="canvas" width="500" height="500"></canvas>
+	<script>
+		function randomPoints(n, w, h, margin=50) {
+			return Array.from({length: n}, () => ({
+				x: Math.random() * (w - 2*margin) + margin,
+				y: Math.random() * (h - 2*margin) + margin
+			}));
+		}
+
+		function centroid(points) {
+			const n = points.length;
+			return {
+				x: points.reduce((sum, p) => sum + p.x, 0) / n,
+				y: points.reduce((sum, p) => sum + p.y, 0) / n
+			};
+		}
+
+		function draw(points, centroid) {
+			const canvas = document.getElementById('canvas');
+			const ctx = canvas.getContext('2d');
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+			// Draw points
+			ctx.fillStyle = 'blue';
+			points.forEach(p => {
+				ctx.beginPath();
+				ctx.arc(p.x, p.y, 6, 0, 2 * Math.PI);
+				ctx.fill();
+			});
+
+			// Draw centroid
+			ctx.fillStyle = 'red';
+			ctx.beginPath();
+			ctx.arc(centroid.x, centroid.y, 8, 0, 2 * Math.PI);
+			ctx.fill();
+
+			// Draw dotted lines
+			ctx.strokeStyle = 'gray';
+			ctx.setLineDash([5, 5]);
+			points.forEach(p => {
+				ctx.beginPath();
+				ctx.moveTo(p.x, p.y);
+				ctx.lineTo(centroid.x, centroid.y);
+				ctx.stroke();
+			});
+			ctx.setLineDash([]);
+		}
+
+		function update() {
+			const n = Math.floor(Math.random() * 6) + 5; // 5-10 points
+			const points = randomPoints(n, 500, 500);
+			const cent = centroid(points);
+			draw(points, cent);
+		}
+
+		document.getElementById('generate').onclick = update;
+		update();
+	</script>
+</body>
+</html>
